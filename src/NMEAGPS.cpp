@@ -21,7 +21,7 @@
 #include <Stream.h>
 
 // Check configurations
- 
+
 #if defined( GPS_FIX_LOCATION_DMS ) & \
     !defined( NMEAGPS_PARSING_SCRATCHPAD )
 
@@ -147,7 +147,7 @@ void NMEAGPS::sentenceOk()
     // GPS quiet time now
 
   }
-  
+
   reset();
 }
 
@@ -184,7 +184,7 @@ void NMEAGPS::headerReceived()
 }
 
 //----------------------------------------------------------------
-// Process one character of an NMEA GPS sentence. 
+// Process one character of an NMEA GPS sentence.
 
 NMEAGPS::decode_t NMEAGPS::decode( char c )
 {
@@ -230,8 +230,8 @@ NMEAGPS::decode_t NMEAGPS::decode( char c )
       sentenceInvalid();
       res = DECODE_CHR_INVALID;
     }
-    
-    
+
+
   } else if (rxState == NMEA_RECEIVING_HEADER) { //------------------------
 
     //  The first field is the sentence type.  It will be used
@@ -359,7 +359,7 @@ void NMEAGPS::storeFix()
         #else
           gps_fix & currentFix = m_fix;
         #endif
-      
+
         if (currentFix.valid.time && (currentFix.dateTime_cs == 0))
           UTCsecondStart( _IntervalStart );
 
@@ -470,7 +470,7 @@ NMEAGPS::decode_t NMEAGPS::parseCommand( char c )
       return DECODE_CHR_OK;
     }
   #endif
-  
+
   uint8_t cmdCount = chrCount;
 
   #ifdef NMEAGPS_PARSE_PROPRIETARY
@@ -509,7 +509,7 @@ NMEAGPS::decode_t NMEAGPS::parseCommand( char c )
 
       return DECODE_CHR_OK;
     }
-    
+
     cmdCount -= 2;
   }
 
@@ -555,6 +555,8 @@ NMEAGPS::decode_t NMEAGPS::parseCommand
         const char *        table_i = (const char *) pgm_read_ptr( &table[i] );
       #else
         const char * const *table   = msgs->table;
+        // The following line confuses GCC into throwing a bogus warning/error. Use pragma to ignore it:
+        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         const char *        table_i = table[i];
       #endif
 
@@ -609,7 +611,7 @@ NMEAGPS::decode_t NMEAGPS::parseCommand
         } // else
           // No more tables, chr is invalid.
       #endif
-      
+
     } else {
       //  This entry is good so far.
       nmeaMessage = (nmea_msg_t) (entry + msg_offset);
@@ -638,17 +640,17 @@ const __FlashStringHelper *NMEAGPS::string_for( nmea_msg_t msg ) const
       #ifdef __AVR__
         const char * const *table   = (const char * const *) pgm_read_word( &msgs->table );
         return
-          (const __FlashStringHelper *) 
+          (const __FlashStringHelper *)
             pgm_read_word( &table[ ((uint8_t)msg) - msg_offset ] );
       #else
         const char * const *table   = msgs->table;
         return
-          (const __FlashStringHelper *) 
+          (const __FlashStringHelper *)
             table[ ((uint8_t)msg) - msg_offset ];
       #endif
-      
+
     }
- 
+
     #ifdef NMEAGPS_DERIVED_TYPES
       // Try the previous table
       #ifdef __AVR__
@@ -775,7 +777,7 @@ bool NMEAGPS::parseGSA( char chr )
 
       #ifdef NMEAGPS_PARSE_SATELLITES
 
-        // It's not clear how this sentence relates to GSV and GGA.  
+        // It's not clear how this sentence relates to GSV and GGA.
         // GSA only allows 12 satellites, while GSV allows any number.
         // GGA just says how many are used to calculate a fix.
 
@@ -1026,7 +1028,7 @@ bool NMEAGPS::parseFloat
   ( gps_fix::whole_frac & val, char chr, uint8_t max_decimal )
 {
   bool done = false;
-  
+
   if (chrCount == 0) {
     val.init();
     comma_needed( true );
@@ -1095,7 +1097,7 @@ bool NMEAGPS::parseFloat( uint16_t & val, char chr, uint8_t max_decimal )
 
   static void finalizeDMS( uint32_t min_frac, DMS_t & dms )
   {
-    // To convert from fractional minutes (hundred thousandths) to 
+    // To convert from fractional minutes (hundred thousandths) to
     //   seconds_whole and seconds_frac,
     //
     //   seconds = min_frac * 60/100000
@@ -1183,7 +1185,7 @@ bool NMEAGPS::parseDDDMM
       decimal      = 0;
       comma_needed( true );
     }
-    
+
     if ((chr == '.') || ((chr == ',') && !decimal)) {
       // Now we know how many digits are in degrees; all but the last two.
       // Switch from BCD (digits) to binary minutes.
@@ -1316,7 +1318,7 @@ bool NMEAGPS::parseLat( char chr )
       if (parseDDDMM
             (
               #if defined( GPS_FIX_LOCATION )
-                m_fix.location._lat, 
+                m_fix.location._lat,
               #endif
               #if defined( GPS_FIX_LOCATION_DMS )
                 m_fix.latitudeDMS,
@@ -1393,7 +1395,7 @@ bool NMEAGPS::parseLon( char chr )
       if (parseDDDMM
             (
               #if defined( GPS_FIX_LOCATION )
-                m_fix.location._lon, 
+                m_fix.location._lon,
               #endif
               #if defined( GPS_FIX_LOCATION_DMS )
                 m_fix.longitudeDMS,
@@ -1453,7 +1455,7 @@ bool NMEAGPS::parseEW( char chr )
       }
     }
   #endif
-  
+
   return true;
 
 } // parseEW
@@ -1673,7 +1675,7 @@ const gps_fix NMEAGPS::read()
 
 void NMEAGPS::poll( Stream *device, nmea_msg_t msg )
 {
-  //  Only the ublox documentation references talker ID "EI".  
+  //  Only the ublox documentation references talker ID "EI".
   //  Other manufacturer's devices use "II" and "GP" talker IDs for the GPQ sentence.
   //  However, "GP" is reserved for the GPS device, so it seems inconsistent
   //  to use that talker ID when requesting something from the GPS device.
